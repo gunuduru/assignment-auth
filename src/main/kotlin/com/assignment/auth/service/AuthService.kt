@@ -3,6 +3,7 @@ package com.assignment.auth.service
 import com.assignment.auth.config.JwtConfig
 import com.assignment.auth.dto.LoginRequest
 import com.assignment.auth.dto.LoginResponse
+import com.assignment.auth.dto.UserProfileResponse
 import com.assignment.auth.exception.InactiveUserLoginException
 import com.assignment.auth.exception.LoginFailedException
 import com.assignment.auth.repository.UserRepository
@@ -56,6 +57,36 @@ class AuthService(
     }
 
     /**
+     * 사용자 ID로 프로필 조회
+     * 
+     * @param userId 사용자 ID
+     * @return 사용자 프로필 정보
+     * @throws LoginFailedException 사용자를 찾을 수 없을 때
+     */
+    fun getUserProfile(userId: Long): UserProfileResponse {
+        val user = userRepository.findById(userId)
+            .orElseThrow { LoginFailedException("사용자를 찾을 수 없습니다.") }
+
+        // 주소에서 행정구역만 추출
+        val administrativeRegion = extractAdministrativeRegion(user.address)
+
+        // 주민등록번호 마스킹 처리 (뒤 7자리를 *로 처리)
+        val maskedSsn = maskSsn(user.ssn)
+
+        return UserProfileResponse(
+            id = user.id,
+            account = user.username,
+            name = user.name,
+            ssn = maskedSsn,
+            phoneNumber = user.phoneNumber,
+            administrativeRegion = administrativeRegion,
+            isActive = user.isActive,
+            createdAt = user.createdAt,
+            updatedAt = user.updatedAt
+        )
+    }
+
+    /**
      * JWT 토큰으로부터 사용자 정보 조회
      * 
      * @param token JWT 토큰
@@ -76,5 +107,51 @@ class AuthService(
      */
     fun validateToken(token: String): Boolean {
         return jwtUtil.validateToken(token) && !jwtUtil.isTokenExpired(token)
+    }
+
+    /**
+     * 주소에서 가장 큰 단위의 행정구역 추출
+     * 예: "서울특별시 강남구 테헤란로 123" -> "서울특별시"
+     * 예: "경기도 성남시 분당구 정자로 456" -> "경기도"
+     * 
+     * @param address 전체 주소
+     * @return 행정구역 (시/도 단위)
+     */
+    private fun extractAdministrativeRegion(address: String): String {
+        if (address.isBlank()) return ""
+
+        // 공백으로 구분된 첫 번째 부분을 추출
+        val firstPart = address.trim().split(" ")[0]
+
+        // 시/도로 끝나는지 확인
+        return if (firstPart.endsWith("시") || firstPart.endsWith("도")) {
+            firstPart
+        } else {
+            // 혹시 공백 없이 붙어있는 경우를 대비해 "시" 또는 "도"까지 찾기
+            val siIndex = address.indexOf("시")
+            val doIndex = address.indexOf("도")
+            
+            when {
+                siIndex > 0 && (doIndex == -1 || siIndex < doIndex) -> address.substring(0, siIndex + 1)
+                doIndex > 0 && (siIndex == -1 || doIndex < siIndex) -> address.substring(0, doIndex + 1)
+                else -> firstPart // 둘 다 없으면 첫 번째 부분 반환
+            }
+        }
+    }
+
+    /**
+     * 주민등록번호 마스킹 처리
+     * 형태: 123456-*******
+     * 
+     * @param ssn 원본 주민등록번호
+     * @return 마스킹된 주민등록번호
+     */
+    private fun maskSsn(ssn: String): String {
+        if (ssn.length != 14 || !ssn.contains("-")) return ssn
+        
+        val parts = ssn.split("-")
+        if (parts.size != 2 || parts[0].length != 6 || parts[1].length != 7) return ssn
+        
+        return "${parts[0]}-*******"
     }
 } 

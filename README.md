@@ -267,6 +267,54 @@ cd auth
 }
 ```
 
+### 4. 사용자 프로필 조회 API (JWT 인증 필요)
+
+#### `GET /api/auth/profile` - 로그인한 사용자의 프로필 조회
+
+**인증 헤더**
+```
+Authorization: Bearer {JWT_ACCESS_TOKEN}
+```
+
+**응답 예시**
+```json
+{
+  "success": true,
+  "message": "사용자 프로필을 성공적으로 조회했습니다.",
+  "data": {
+    "id": 1,
+    "account": "testuser123",
+    "name": "홍길동",
+    "ssn": "123456-*******",
+    "phoneNumber": "01012345678",
+    "administrativeRegion": "서울특별시",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00",
+    "updatedAt": "2024-01-15T10:30:00"
+  }
+}
+```
+
+**특이사항**
+- JWT access token을 통한 인증 필요
+- 주민등록번호는 뒤 7자리가 마스킹 처리됨 (`123456-*******`)
+- 주소는 가장 큰 단위의 행정구역만 반환 (예: "서울특별시", "경기도", "강원특별자치도")
+- 로그인하지 않은 경우 401 Unauthorized 응답
+
+**인증 실패 응답**
+```json
+{
+  "success": false,
+  "message": "인증에 실패했습니다.",
+  "errors": [
+    {
+      "field": "authorization",
+      "message": "유효하지 않은 토큰입니다."
+    }
+  ]
+}
+```
+
 ## 디렉토리 구조
 
 ```
@@ -338,10 +386,16 @@ src/
 - [x] JWT 토큰 검증 필터
 - [x] 비활성화된 사용자 로그인 차단
 
+### ✅ 6단계: 사용자 프로필 조회 API 구현
+- [x] JWT 인증 기반 사용자 프로필 조회 API (`GET /api/auth/profile`)
+- [x] 주민등록번호 마스킹 처리 (뒤 7자리를 `*`로 처리)
+- [x] 주소 행정구역 추출 (시/도 단위만 반환)
+- [x] JWT 토큰 검증 및 사용자 인증
+- [x] 보안 설정 업데이트 (인증 없는 요청 401 처리)
+
 ## TODO (향후 작업 예정)
 
-### 6단계: 사용자 정보 관리 API
-- [ ] 사용자 정보 조회 API
+### 7단계: 사용자 정보 수정 API
 - [ ] 사용자 정보 수정 API
 - [ ] 비밀번호 변경 API
 
@@ -372,4 +426,4 @@ src/
 ---
 **Last Updated**: 2025.07.24  
 **Current Version**: 0.0.1-SNAPSHOT  
-**Development Stage**: 5단계 (로그인 API 구현) 완료 
+**Development Stage**: 6단계 (사용자 프로필 조회 API 구현) 완료 

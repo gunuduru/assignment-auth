@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional
  */
 @SpringBootTest
 @AutoConfigureWebMvc
-@ActiveProfiles("dev") // H2 테스트 데이터베이스 사용
+@ActiveProfiles("test") // H2 테스트 데이터베이스 사용
 @Transactional
 class AuthControllerTest {
 

@@ -18,7 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 /**
  * Spring Security 설정
  * - 관리자 API는 Basic Auth 인증 필요 (admin/1212)
- * - 일반 사용자 API는 JWT 토큰 또는 인증 없이 접근 허용
+ * - 일반 사용자 API는 JWT 토큰 인증 필요
+ * - 회원가입/로그인은 인증 없이 접근 허용
  */
 @Configuration
 @EnableWebSecurity
@@ -42,9 +43,10 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/api/auth/register", "/api/auth/login").permitAll() // 회원가입, 로그인은 모두 허용
+                    .requestMatchers("/api/auth/register", "/api/auth/login").permitAll() // 회원가입, 로그인은 인증 없이 허용
                     .requestMatchers("/api/admin/**").authenticated() // 관리자 API는 Basic Auth
-                    .anyRequest().permitAll() // 임시로 모든 요청 허용하여 JWT 토큰 검증 문제 우회
+                    .requestMatchers("/api/auth/**").authenticated() // 나머지 auth API는 JWT 인증 필요
+                    .anyRequest().authenticated() // 기본적으로 모든 요청은 인증 필요
             }
             .httpBasic { } // Basic Auth for admin APIs
             .formLogin { it.disable() }

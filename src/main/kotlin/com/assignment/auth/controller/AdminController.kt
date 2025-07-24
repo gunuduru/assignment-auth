@@ -7,7 +7,6 @@ import jakarta.validation.Valid
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -93,10 +92,6 @@ class AdminController(
         
         return ResponseEntity.noContent().build()
     }
-
-
-
-
 
     /**
      * 연령대별 카카오톡 메시지 발송 스케줄링

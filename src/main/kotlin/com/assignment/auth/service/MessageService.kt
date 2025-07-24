@@ -4,7 +4,6 @@ import com.assignment.auth.dto.MessageRequest
 import com.assignment.auth.dto.MessageResponse
 import com.assignment.auth.entity.ScheduledMessage
 import com.assignment.auth.exception.InvalidAgeGroupException
-import com.assignment.auth.exception.MessageSchedulingException
 import com.assignment.auth.repository.ScheduledMessageRepository
 import com.assignment.auth.repository.UserRepository
 import com.assignment.auth.util.AgeUtil

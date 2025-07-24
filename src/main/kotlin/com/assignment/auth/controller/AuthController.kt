@@ -1,11 +1,6 @@
 package com.assignment.auth.controller
 
-import com.assignment.auth.dto.ApiResponse
-import com.assignment.auth.dto.LoginRequest
-import com.assignment.auth.dto.LoginResponse
-import com.assignment.auth.dto.UserRegisterRequest
-import com.assignment.auth.dto.UserRegisterResponse
-import com.assignment.auth.dto.UserProfileResponse
+import com.assignment.auth.dto.*
 import com.assignment.auth.service.AuthService
 import com.assignment.auth.service.UserService
 import jakarta.servlet.http.HttpServletRequest
@@ -35,13 +30,9 @@ class AuthController(
     @PostMapping("/register")
     fun registerUser(
         @Valid @RequestBody request: UserRegisterRequest
-    ): ResponseEntity<ApiResponse<UserRegisterResponse>> {
+    ): ResponseEntity<UserRegisterResponse> {
         val response = userService.registerUser(request)
-        val apiResponse = ApiResponse.success(
-            message = "회원가입이 완료되었습니다.",
-            data = response
-        )
-        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse)
+        return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
 
     /**
@@ -50,13 +41,9 @@ class AuthController(
     @PostMapping("/login")
     fun login(
         @Valid @RequestBody request: LoginRequest
-    ): ResponseEntity<ApiResponse<LoginResponse>> {
+    ): ResponseEntity<LoginResponse> {
         val response = authService.login(request)
-        val apiResponse = ApiResponse.success(
-            message = "로그인이 완료되었습니다.",
-            data = response
-        )
-        return ResponseEntity.ok(apiResponse)
+        return ResponseEntity.ok(response)
     }
 
     /**
@@ -66,16 +53,12 @@ class AuthController(
     @GetMapping("/profile")
     fun getUserProfile(
         request: HttpServletRequest
-    ): ResponseEntity<ApiResponse<UserProfileResponse>> {
+    ): ResponseEntity<UserProfileResponse> {
         // JwtAuthenticationFilter에서 설정한 사용자 ID 추출
         val userId = request.getAttribute("userId") as? Long
             ?: throw IllegalStateException("인증된 사용자 정보를 찾을 수 없습니다.")
 
         val profile = authService.getUserProfile(userId)
-        val apiResponse = ApiResponse.success(
-            message = "사용자 프로필을 성공적으로 조회했습니다.",
-            data = profile
-        )
-        return ResponseEntity.ok(apiResponse)
+        return ResponseEntity.ok(profile)
     }
 } 

@@ -1,14 +1,9 @@
 package com.assignment.auth.controller
 
-import com.assignment.auth.dto.ApiResponse
-import com.assignment.auth.dto.MessageRequest
-import com.assignment.auth.dto.MessageResponse
-import com.assignment.auth.dto.UserResponse
-import com.assignment.auth.dto.UserUpdateRequest
+import com.assignment.auth.dto.*
 import com.assignment.auth.service.AdminService
 import com.assignment.auth.service.MessageService
 import jakarta.validation.Valid
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -41,19 +36,15 @@ class AdminController(
         @RequestParam(defaultValue = "10") size: Int,
         @RequestParam(defaultValue = "id") sort: String,
         @RequestParam(defaultValue = "asc") direction: String
-    ): ResponseEntity<ApiResponse<Page<UserResponse>>> {
+    ): ResponseEntity<UserListResponse> {
         
         val sortDirection = if (direction.lowercase() == "desc") Sort.Direction.DESC else Sort.Direction.ASC
         val pageable: Pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort))
         
-        val users = adminService.getAllUsers(pageable)
+        val usersPage = adminService.getAllUsers(pageable)
+        val response = UserListResponse.from(usersPage)
         
-        val apiResponse = ApiResponse.success(
-            message = "사용자 목록을 성공적으로 조회했습니다.",
-            data = users
-        )
-        
-        return ResponseEntity.ok(apiResponse)
+        return ResponseEntity.ok(response)
     }
 
     /**
@@ -70,19 +61,15 @@ class AdminController(
         @RequestParam(defaultValue = "10") size: Int,
         @RequestParam(defaultValue = "id") sort: String,
         @RequestParam(defaultValue = "asc") direction: String
-    ): ResponseEntity<ApiResponse<Page<UserResponse>>> {
+    ): ResponseEntity<UserListResponse> {
         
         val sortDirection = if (direction.lowercase() == "desc") Sort.Direction.DESC else Sort.Direction.ASC
         val pageable: Pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort))
         
-        val users = adminService.getActiveUsers(pageable)
+        val usersPage = adminService.getActiveUsers(pageable)
+        val response = UserListResponse.from(usersPage)
         
-        val apiResponse = ApiResponse.success(
-            message = "활성 사용자 목록을 성공적으로 조회했습니다.",
-            data = users
-        )
-        
-        return ResponseEntity.ok(apiResponse)
+        return ResponseEntity.ok(response)
     }
 
     /**
@@ -92,16 +79,11 @@ class AdminController(
      * @return 사용자 정보
      */
     @GetMapping("/users/{userId}")
-    fun getUserById(@PathVariable userId: Long): ResponseEntity<ApiResponse<UserResponse>> {
+    fun getUserById(@PathVariable userId: Long): ResponseEntity<UserResponse> {
         
         val user = adminService.getUserById(userId)
         
-        val apiResponse = ApiResponse.success(
-            message = "사용자 정보를 성공적으로 조회했습니다.",
-            data = user
-        )
-        
-        return ResponseEntity.ok(apiResponse)
+        return ResponseEntity.ok(user)
     }
 
     /**
@@ -115,16 +97,11 @@ class AdminController(
     fun updateUser(
         @PathVariable userId: Long,
         @Valid @RequestBody request: UserUpdateRequest
-    ): ResponseEntity<ApiResponse<UserResponse>> {
+    ): ResponseEntity<UserResponse> {
         
         val updatedUser = adminService.updateUser(userId, request)
         
-        val apiResponse = ApiResponse.success(
-            message = "사용자 정보를 성공적으로 수정했습니다.",
-            data = updatedUser
-        )
-        
-        return ResponseEntity.ok(apiResponse)
+        return ResponseEntity.ok(updatedUser)
     }
 
     /**
@@ -134,16 +111,11 @@ class AdminController(
      * @return 비활성화된 사용자 정보
      */
     @DeleteMapping("/users/{userId}")
-    fun deleteUser(@PathVariable userId: Long): ResponseEntity<ApiResponse<UserResponse>> {
+    fun deleteUser(@PathVariable userId: Long): ResponseEntity<UserResponse> {
         
         val deletedUser = adminService.deleteUser(userId)
         
-        val apiResponse = ApiResponse.success(
-            message = "사용자를 성공적으로 비활성화했습니다.",
-            data = deletedUser
-        )
-        
-        return ResponseEntity.ok(apiResponse)
+        return ResponseEntity.ok(deletedUser)
     }
 
     /**
@@ -153,16 +125,11 @@ class AdminController(
      * @return 활성화된 사용자 정보
      */
     @PostMapping("/users/{userId}/activate")
-    fun activateUser(@PathVariable userId: Long): ResponseEntity<ApiResponse<UserResponse>> {
+    fun activateUser(@PathVariable userId: Long): ResponseEntity<UserResponse> {
         
         val activatedUser = adminService.activateUser(userId)
         
-        val apiResponse = ApiResponse.success(
-            message = "사용자를 성공적으로 활성화했습니다.",
-            data = activatedUser
-        )
-        
-        return ResponseEntity.ok(apiResponse)
+        return ResponseEntity.ok(activatedUser)
     }
 
     /**
@@ -171,16 +138,12 @@ class AdminController(
      * @return 전체/활성/비활성 사용자 수 통계
      */
     @GetMapping("/statistics")
-    fun getUserStatistics(): ResponseEntity<ApiResponse<Map<String, Long>>> {
+    fun getUserStatistics(): ResponseEntity<UserStatisticsResponse> {
         
         val statistics = adminService.getUserStatistics()
+        val response = UserStatisticsResponse.from(statistics)
         
-        val apiResponse = ApiResponse.success(
-            message = "사용자 통계를 성공적으로 조회했습니다.",
-            data = statistics
-        )
-        
-        return ResponseEntity.ok(apiResponse)
+        return ResponseEntity.ok(response)
     }
 
     /**
@@ -192,16 +155,11 @@ class AdminController(
     @PostMapping("/messages/age-group")
     fun sendAgeGroupMessage(
         @Valid @RequestBody request: MessageRequest
-    ): ResponseEntity<ApiResponse<MessageResponse>> {
+    ): ResponseEntity<MessageResponse> {
         
         val response = messageService.scheduleAgeGroupMessage(request)
         
-        val apiResponse = ApiResponse.success(
-            message = "${request.ageGroup}대 회원들에게 메시지 발송이 스케줄링되었습니다.",
-            data = response
-        )
-        
-        return ResponseEntity.ok(apiResponse)
+        return ResponseEntity.ok(response)
     }
 
     /**
@@ -210,16 +168,11 @@ class AdminController(
      * @return 대기 중인 메시지 통계
      */
     @GetMapping("/messages/pending")
-    fun getPendingMessageCount(): ResponseEntity<ApiResponse<Map<String, Long>>> {
+    fun getPendingMessageCount(): ResponseEntity<PendingMessageResponse> {
         
         val pendingCount = messageService.getPendingMessageCount()
-        val data = mapOf("pendingMessageCount" to pendingCount)
+        val response = PendingMessageResponse(pendingCount)
         
-        val apiResponse = ApiResponse.success(
-            message = "대기 중인 메시지 수를 성공적으로 조회했습니다.",
-            data = data
-        )
-        
-        return ResponseEntity.ok(apiResponse)
+        return ResponseEntity.ok(response)
     }
 } 

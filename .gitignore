@@ -38,3 +38,9 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### H2 Database Files ###
+data/
+*.db
+*.mv.db
+*.trace.db

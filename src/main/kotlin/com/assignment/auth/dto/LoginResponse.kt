@@ -19,7 +19,7 @@ data class LoginResponse(
         val id: Long,
         val username: String,
         val name: String,
-        val isActive: Boolean,
+    
         val lastLoginAt: LocalDateTime = LocalDateTime.now()
     )
 
@@ -34,8 +34,7 @@ data class LoginResponse(
                 user = UserInfo(
                     id = user.id,
                     username = user.username,
-                    name = user.name,
-                    isActive = user.isActive
+                    name = user.name
                 )
             )
         }

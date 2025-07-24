@@ -13,7 +13,7 @@ data class UserResponse(
     val ssn: String,
     val phoneNumber: String,
     val address: String,
-    val isActive: Boolean,
+
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime
 ) {
@@ -29,7 +29,6 @@ data class UserResponse(
                 ssn = user.ssn,
                 phoneNumber = user.phoneNumber,
                 address = user.address,
-                isActive = user.isActive,
                 createdAt = user.createdAt,
                 updatedAt = user.updatedAt
             )

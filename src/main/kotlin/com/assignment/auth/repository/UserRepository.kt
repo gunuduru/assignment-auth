@@ -42,20 +42,14 @@ interface UserRepository : JpaRepository<User, Long> {
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u WHERE u.username = :username OR u.ssn = :ssn")
     fun existsByUsernameOrSsn(@Param("username") username: String, @Param("ssn") ssn: String): Boolean
 
-    /**
-     * 활성 상태별 사용자 조회
-     */
-    fun findByIsActive(isActive: Boolean): List<User>
+
 
     /**
      * 페이지네이션을 위한 전체 사용자 조회
      */
     fun findAllBy(pageable: Pageable): Page<User>
 
-    /**
-     * 활성 상태별 페이지네이션 조회
-     */
-    fun findByIsActive(isActive: Boolean, pageable: Pageable): Page<User>
+
 
     /**
      * 이름으로 사용자 검색 (부분 일치)
@@ -63,19 +57,10 @@ interface UserRepository : JpaRepository<User, Long> {
     fun findByNameContainingIgnoreCase(name: String): List<User>
 
     /**
-     * 활성 사용자 조회
+     * 모든 사용자 조회 (메시지 발송용)
      */
-    @Query("SELECT u FROM User u WHERE u.isActive = true")
+    @Query("SELECT u FROM User u")
     fun findActiveUsers(): List<User>
 
-    /**
-     * 전체 사용자 수 조회
-     */
-    @Query("SELECT COUNT(u) FROM User u")
-    fun countAllUsers(): Long
 
-    /**
-     * 활성 사용자 수 조회
-     */
-    fun countByIsActive(isActive: Boolean): Long
 } 

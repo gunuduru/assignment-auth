@@ -101,14 +101,14 @@ class UserService(
      * 전체 사용자 수 조회
      */
     fun getTotalUserCount(): Long {
-        return userRepository.countAllUsers()
+        return userRepository.count()
     }
 
     /**
      * 활성 사용자 수 조회
      */
     fun getActiveUserCount(): Long {
-        return userRepository.countByIsActive(true)
+        return userRepository.count()
     }
 
 

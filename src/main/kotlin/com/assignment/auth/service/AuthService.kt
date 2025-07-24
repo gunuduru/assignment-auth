@@ -43,10 +43,7 @@ class AuthService(
             throw LoginFailedException("계정명 또는 비밀번호가 올바르지 않습니다.")
         }
 
-        // 3. 활성 사용자 여부 확인
-        if (!user.isActive) {
-            throw InactiveUserLoginException("비활성화된 계정입니다. 관리자에게 문의하세요.")
-        }
+        // 3. 모든 사용자는 활성 상태 (isActive 필드 제거됨)
 
         // 4. JWT 토큰 생성
         val accessToken = jwtUtil.generateToken(user.id, user.username)
@@ -80,7 +77,6 @@ class AuthService(
             ssn = maskedSsn,
             phoneNumber = user.phoneNumber,
             administrativeRegion = administrativeRegion,
-            isActive = user.isActive,
             createdAt = user.createdAt,
             updatedAt = user.updatedAt
         )

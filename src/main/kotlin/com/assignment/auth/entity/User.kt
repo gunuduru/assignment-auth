@@ -64,9 +64,6 @@ data class User(
     @field:Size(min = 10, max = 100, message = "주소는 10자 이상 100자 이하여야 합니다")
     val address: String,
 
-    @Column(name = "is_active", nullable = false)
-    val isActive: Boolean = true,
-
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
@@ -75,13 +72,8 @@ data class User(
     @Column(name = "updated_at", nullable = false)
     var updatedAt: LocalDateTime = LocalDateTime.now()
 ) {
-    /**
-     * 활성 사용자 여부 확인
-     */
-    fun isActiveUser(): Boolean = isActive
-
     override fun toString(): String {
-        return "User(id=$id, username='$username', name='$name', isActive=$isActive)"
+        return "User(id=$id, username='$username', name='$name')"
     }
 
     override fun equals(other: Any?): Boolean {

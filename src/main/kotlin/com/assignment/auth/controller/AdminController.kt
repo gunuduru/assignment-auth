@@ -47,30 +47,7 @@ class AdminController(
         return ResponseEntity.ok(response)
     }
 
-    /**
-     * 활성 사용자 목록 조회 (페이지네이션)
-     * 
-     * @param page 페이지 번호 (0부터 시작, 기본값: 0)
-     * @param size 페이지 크기 (기본값: 10)
-     * @param sort 정렬 기준 (기본값: id,asc)
-     * @return 페이지네이션된 활성 사용자 목록
-     */
-    @GetMapping("/users/active")
-    fun getActiveUsers(
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int,
-        @RequestParam(defaultValue = "id") sort: String,
-        @RequestParam(defaultValue = "asc") direction: String
-    ): ResponseEntity<UserListResponse> {
-        
-        val sortDirection = if (direction.lowercase() == "desc") Sort.Direction.DESC else Sort.Direction.ASC
-        val pageable: Pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort))
-        
-        val usersPage = adminService.getActiveUsers(pageable)
-        val response = UserListResponse.from(usersPage)
-        
-        return ResponseEntity.ok(response)
-    }
+
 
     /**
      * 특정 사용자 정보 조회
@@ -105,46 +82,21 @@ class AdminController(
     }
 
     /**
-     * 사용자 삭제 (소프트 삭제 - 비활성화)
+     * 사용자 삭제 (하드 삭제)
      * 
      * @param userId 사용자 ID
-     * @return 비활성화된 사용자 정보
      */
     @DeleteMapping("/users/{userId}")
-    fun deleteUser(@PathVariable userId: Long): ResponseEntity<UserResponse> {
+    fun deleteUser(@PathVariable userId: Long): ResponseEntity<Void> {
         
-        val deletedUser = adminService.deleteUser(userId)
+        adminService.deleteUser(userId)
         
-        return ResponseEntity.ok(deletedUser)
+        return ResponseEntity.noContent().build()
     }
 
-    /**
-     * 사용자 활성화
-     * 
-     * @param userId 사용자 ID
-     * @return 활성화된 사용자 정보
-     */
-    @PostMapping("/users/{userId}/activate")
-    fun activateUser(@PathVariable userId: Long): ResponseEntity<UserResponse> {
-        
-        val activatedUser = adminService.activateUser(userId)
-        
-        return ResponseEntity.ok(activatedUser)
-    }
 
-    /**
-     * 사용자 통계 정보 조회
-     * 
-     * @return 전체/활성/비활성 사용자 수 통계
-     */
-    @GetMapping("/statistics")
-    fun getUserStatistics(): ResponseEntity<UserStatisticsResponse> {
-        
-        val statistics = adminService.getUserStatistics()
-        val response = UserStatisticsResponse.from(statistics)
-        
-        return ResponseEntity.ok(response)
-    }
+
+
 
     /**
      * 연령대별 카카오톡 메시지 발송 스케줄링

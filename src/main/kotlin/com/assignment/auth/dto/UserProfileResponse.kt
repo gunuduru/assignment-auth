@@ -41,7 +41,7 @@ data class UserProfileResponse(
     /**
      * 계정 활성화 상태
      */
-    val isActive: Boolean,
+
 
     /**
      * 계정 생성일시

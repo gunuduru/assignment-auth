@@ -30,13 +30,7 @@ class AdminService(
             .map { UserResponse.from(it) }
     }
 
-    /**
-     * 활성 사용자 목록 조회 (페이지네이션)
-     */
-    fun getActiveUsers(pageable: Pageable): Page<UserResponse> {
-        return userRepository.findByIsActive(true, pageable)
-            .map { UserResponse.from(it) }
-    }
+
 
     /**
      * 사용자 ID로 조회
@@ -68,47 +62,17 @@ class AdminService(
     }
 
     /**
-     * 사용자 삭제 (소프트 삭제 - isActive를 false로 변경)
+     * 사용자 삭제 (하드 삭제)
      */
     @Transactional
-    fun deleteUser(userId: Long): UserResponse {
+    fun deleteUser(userId: Long) {
         val user = userRepository.findById(userId)
             .orElseThrow { UserNotFoundException("ID가 $userId 인 사용자를 찾을 수 없습니다.") }
 
-        if (!user.isActive) {
-            throw IllegalStateException("이미 비활성화된 사용자입니다.")
-        }
-
-        // 소프트 삭제 처리
-        val deactivatedUser = user.copy(
-            isActive = false,
-            updatedAt = LocalDateTime.now()
-        )
-
-        val savedUser = userRepository.save(deactivatedUser)
-        return UserResponse.from(savedUser)
+        userRepository.delete(user)
     }
 
-    /**
-     * 사용자 활성화
-     */
-    @Transactional
-    fun activateUser(userId: Long): UserResponse {
-        val user = userRepository.findById(userId)
-            .orElseThrow { UserNotFoundException("ID가 $userId 인 사용자를 찾을 수 없습니다.") }
 
-        if (user.isActive) {
-            throw IllegalStateException("이미 활성화된 사용자입니다.")
-        }
-
-        val activatedUser = user.copy(
-            isActive = true,
-            updatedAt = LocalDateTime.now()
-        )
-
-        val savedUser = userRepository.save(activatedUser)
-        return UserResponse.from(savedUser)
-    }
 
     /**
      * 사용자 정보 업데이트 헬퍼 메소드
@@ -121,14 +85,5 @@ class AdminService(
         )
     }
 
-    /**
-     * 통계 정보 조회
-     */
-    fun getUserStatistics(): Map<String, Long> {
-        return mapOf(
-            "totalUsers" to userRepository.countAllUsers(),
-            "activeUsers" to userRepository.countByIsActive(true),
-            "inactiveUsers" to userRepository.countByIsActive(false)
-        )
-    }
+
 } 

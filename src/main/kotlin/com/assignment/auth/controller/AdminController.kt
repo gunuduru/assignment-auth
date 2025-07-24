@@ -1,9 +1,12 @@
 package com.assignment.auth.controller
 
 import com.assignment.auth.dto.ApiResponse
+import com.assignment.auth.dto.MessageRequest
+import com.assignment.auth.dto.MessageResponse
 import com.assignment.auth.dto.UserResponse
 import com.assignment.auth.dto.UserUpdateRequest
 import com.assignment.auth.service.AdminService
+import com.assignment.auth.service.MessageService
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -20,7 +23,8 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/admin")
 class AdminController(
-    private val adminService: AdminService
+    private val adminService: AdminService,
+    private val messageService: MessageService
 ) {
 
     /**
@@ -174,6 +178,46 @@ class AdminController(
         val apiResponse = ApiResponse.success(
             message = "사용자 통계를 성공적으로 조회했습니다.",
             data = statistics
+        )
+        
+        return ResponseEntity.ok(apiResponse)
+    }
+
+    /**
+     * 연령대별 카카오톡 메시지 발송 스케줄링
+     * 
+     * @param request 메시지 발송 요청 (연령대, 메시지 내용)
+     * @return 메시지 발송 스케줄링 결과
+     */
+    @PostMapping("/messages/age-group")
+    fun sendAgeGroupMessage(
+        @Valid @RequestBody request: MessageRequest
+    ): ResponseEntity<ApiResponse<MessageResponse>> {
+        
+        val response = messageService.scheduleAgeGroupMessage(request)
+        
+        val apiResponse = ApiResponse.success(
+            message = "${request.ageGroup}대 회원들에게 메시지 발송이 스케줄링되었습니다.",
+            data = response
+        )
+        
+        return ResponseEntity.ok(apiResponse)
+    }
+
+    /**
+     * 현재 대기 중인 메시지 수 조회
+     * 
+     * @return 대기 중인 메시지 통계
+     */
+    @GetMapping("/messages/pending")
+    fun getPendingMessageCount(): ResponseEntity<ApiResponse<Map<String, Long>>> {
+        
+        val pendingCount = messageService.getPendingMessageCount()
+        val data = mapOf("pendingMessageCount" to pendingCount)
+        
+        val apiResponse = ApiResponse.success(
+            message = "대기 중인 메시지 수를 성공적으로 조회했습니다.",
+            data = data
         )
         
         return ResponseEntity.ok(apiResponse)

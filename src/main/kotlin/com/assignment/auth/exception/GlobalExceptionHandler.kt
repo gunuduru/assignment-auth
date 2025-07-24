@@ -170,6 +170,75 @@ class GlobalExceptionHandler {
     }
 
     /**
+     * 잘못된 연령대 예외 처리
+     */
+    @ExceptionHandler(InvalidAgeGroupException::class)
+    fun handleInvalidAgeGroupException(
+        ex: InvalidAgeGroupException
+    ): ResponseEntity<ApiResponse<Nothing>> {
+        
+        val errors = listOf(
+            ValidationError(
+                field = "ageGroup",
+                message = ex.message ?: "잘못된 연령대 값입니다."
+            )
+        )
+        
+        val response = ApiResponse.failure<Nothing>(
+            message = "연령대 값이 올바르지 않습니다.",
+            errors = errors
+        )
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response)
+    }
+
+    /**
+     * 메시지 발송 실패 예외 처리
+     */
+    @ExceptionHandler(MessageSendFailedException::class)
+    fun handleMessageSendFailedException(
+        ex: MessageSendFailedException
+    ): ResponseEntity<ApiResponse<Nothing>> {
+        
+        val errors = listOf(
+            ValidationError(
+                field = "message",
+                message = ex.message ?: "메시지 발송에 실패했습니다."
+            )
+        )
+        
+        val response = ApiResponse.failure<Nothing>(
+            message = "메시지 발송 중 오류가 발생했습니다.",
+            errors = errors
+        )
+        
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response)
+    }
+
+    /**
+     * 메시지 스케줄링 실패 예외 처리
+     */
+    @ExceptionHandler(MessageSchedulingException::class)
+    fun handleMessageSchedulingException(
+        ex: MessageSchedulingException
+    ): ResponseEntity<ApiResponse<Nothing>> {
+        
+        val errors = listOf(
+            ValidationError(
+                field = "scheduling",
+                message = ex.message ?: "메시지 스케줄링에 실패했습니다."
+            )
+        )
+        
+        val response = ApiResponse.failure<Nothing>(
+            message = "메시지 스케줄링 중 오류가 발생했습니다.",
+            errors = errors
+        )
+        
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response)
+    }
+
+    /**
      * 일반 예외 처리
      */
     @ExceptionHandler(Exception::class)

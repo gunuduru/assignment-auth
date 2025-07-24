@@ -267,7 +267,76 @@ cd auth
 }
 ```
 
-### 4. 사용자 프로필 조회 API (JWT 인증 필요)
+### 4. 연령대별 메시지 발송 API (관리자 전용, Basic Auth 인증 필요)
+
+#### `POST /api/admin/messages/age-group` - 연령대별 카카오톡/SMS 메시지 발송 스케줄링
+
+**인증 정보**: 사용자명 `admin`, 비밀번호 `1212`
+
+**요청 본문**
+```json
+{
+  "ageGroup": 30,
+  "message": "안녕하세요! 현대 오토에버 이벤트 안내입니다."
+}
+```
+
+**응답 예시**
+```json
+{
+  "success": true,
+  "message": "30대 회원들에게 메시지 발송이 스케줄링되었습니다.",
+  "data": {
+    "ageGroup": 30,
+    "targetUserCount": 1247,
+    "scheduledMessageCount": 1247,
+    "estimatedStartTime": "약 3분 후"
+  }
+}
+```
+
+**특이사항**
+- 연령대는 10, 20, 30, 40, 50, 60, 70, 80 중 하나여야 함
+- 메시지 제목은 자동으로 "[회원 성명]님, 안녕하세요. 현대 오토에버입니다."로 생성됨
+- 카카오톡 우선 발송, 실패 시 SMS로 자동 전환
+- 분당 처리 제한: 카카오톡 100건, SMS 500건
+- 1분마다 스케줄러가 자동으로 대기 중인 메시지를 처리
+
+#### `GET /api/admin/messages/pending` - 대기 중인 메시지 수 조회
+
+**응답 예시**
+```json
+{
+  "success": true,
+  "message": "대기 중인 메시지 수를 성공적으로 조회했습니다.",
+  "data": {
+    "pendingMessageCount": 2847
+  }
+}
+```
+
+**메시지 발송 시스템 구조**
+- **스케줄링**: API 호출 시 즉시 DB에 메시지 저장 (비동기 처리)
+- **발송 처리**: 1분마다 스케줄러가 최대 500개씩 순차 처리
+- **우선순위**: ID 기준 오름차순 (먼저 등록된 메시지부터)
+- **외부 API**: 카카오톡 API (localhost:8081), SMS API (localhost:8082)
+- **Rate Limiting**: 카카오톡 분당 100건, SMS 분당 500건 제한
+
+**오류 응답 (잘못된 연령대)**
+```json
+{
+  "success": false,
+  "message": "연령대 값이 올바르지 않습니다.",
+  "errors": [
+    {
+      "field": "ageGroup",
+      "message": "연령대는 10, 20, 30, 40, 50, 60, 70, 80 중 하나여야 합니다."
+    }
+  ]
+}
+```
+
+### 5. 사용자 프로필 조회 API (JWT 인증 필요)
 
 #### `GET /api/auth/profile` - 로그인한 사용자의 프로필 조회
 
@@ -393,14 +462,27 @@ src/
 - [x] JWT 토큰 검증 및 사용자 인증
 - [x] 보안 설정 업데이트 (인증 없는 요청 401 처리)
 
+### ✅ 7단계: 연령대별 메시지 발송 시스템 구현
+- [x] ScheduledMessage 엔티티 및 Repository 구현
+- [x] 연령 계산 유틸리티 (주민등록번호 → 연령대)
+- [x] 카카오톡/SMS 외부 API 클라이언트 구현
+- [x] 메시지 스케줄링 서비스 구현 (연령대별 필터링)
+- [x] 1분마다 실행되는 메시지 발송 스케줄러 구현
+- [x] Rate Limiting 처리 (카카오톡 100건/분, SMS 500건/분)
+- [x] 관리자 메시지 발송 API (`POST /api/admin/messages/age-group`)
+- [x] 대기 메시지 조회 API (`GET /api/admin/messages/pending`)
+- [x] 전화번호 형식 변경 (xxx-xxxx-xxxx)
+- [x] 개인화된 메시지 생성 ("[이름]님, 안녕하세요. 현대 오토에버입니다.")
+- [x] 카카오톡 실패 시 SMS 자동 전환 (Fallback)
+- [x] 메시지 관련 예외 처리 및 오류 응답
+
 ## TODO (향후 작업 예정)
 
-### 7단계: 사용자 정보 수정 API
+### 8단계: 사용자 정보 수정 API
 - [ ] 사용자 정보 수정 API
 - [ ] 비밀번호 변경 API
 
-### 7-12단계: 고급 기능
-- [ ] 메시지 전송 시스템
+### 9-12단계: 고급 기능
 - [ ] 권한 관리 시스템
 - [ ] 로그 및 모니터링
 - [ ] API 문서화 (Swagger)
@@ -426,4 +508,4 @@ src/
 ---
 **Last Updated**: 2025.07.24  
 **Current Version**: 0.0.1-SNAPSHOT  
-**Development Stage**: 6단계 (사용자 프로필 조회 API 구현) 완료 
+**Development Stage**: 7단계 (연령대별 메시지 발송 시스템) 완료 

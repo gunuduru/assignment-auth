@@ -35,8 +35,8 @@ data class UserRegisterRequest(
 
     @field:NotBlank(message = "휴대폰번호는 필수입니다")
     @field:Pattern(
-        regexp = "^[0-9]{11}$",
-        message = "휴대폰번호는 11자리 숫자여야 합니다"
+        regexp = "^[0-9]{3}-[0-9]{4}-[0-9]{4}$",
+        message = "휴대폰번호는 xxx-xxxx-xxxx 형태여야 합니다 (예: 010-1234-5678)"
     )
     val phoneNumber: String,
 

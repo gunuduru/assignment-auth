@@ -50,7 +50,7 @@ class GlobalExceptionHandler {
         val errors = listOf(
             ValidationError(
                 field = "username",
-                message = ex.message ?: "이미 사용 중인 계정명입니다."
+                message = ex.message ?: "이미 사용 중인 계정입니다."
             )
         )
         
@@ -73,7 +73,7 @@ class GlobalExceptionHandler {
         val errors = listOf(
             ValidationError(
                 field = "ssn",
-                message = ex.message ?: "이미 등록된 주민등록번호입니다."
+                message = ex.message ?: "이미 사용 중인 주민등록번호입니다."
             )
         )
         
@@ -89,77 +89,98 @@ class GlobalExceptionHandler {
      * 사용자를 찾을 수 없는 예외 처리
      */
     @ExceptionHandler(UserNotFoundException::class)
-    fun handleUserNotFoundException(
-        ex: UserNotFoundException
-    ): ResponseEntity<ApiResponse<Nothing>> {
-        
-        val response = ApiResponse.failure<Nothing>(
-            message = ex.message ?: "사용자를 찾을 수 없습니다."
+    fun handleUserNotFoundException(ex: UserNotFoundException): ResponseEntity<ApiResponse<Nothing>> {
+        val apiResponse = ApiResponse.failure<Nothing>(
+            message = ex.message ?: "사용자를 찾을 수 없습니다.",
+            errors = emptyList()
         )
-        
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response)
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiResponse)
     }
 
     /**
-     * 유효하지 않은 사용자 데이터 예외 처리
+     * 잘못된 사용자 데이터 예외 처리
      */
     @ExceptionHandler(InvalidUserDataException::class)
-    fun handleInvalidUserDataException(
-        ex: InvalidUserDataException
-    ): ResponseEntity<ApiResponse<Nothing>> {
-        
-        val response = ApiResponse.failure<Nothing>(
-            message = ex.message ?: "유효하지 않은 사용자 정보입니다."
+    fun handleInvalidUserDataException(ex: InvalidUserDataException): ResponseEntity<ApiResponse<Nothing>> {
+        val apiResponse = ApiResponse.failure<Nothing>(
+            message = ex.message ?: "잘못된 사용자 데이터입니다.",
+            errors = emptyList()
         )
-        
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse)
     }
 
     /**
-     * 비활성화된 사용자 예외 처리
+     * 비활성 사용자 예외 처리
      */
     @ExceptionHandler(InactiveUserException::class)
-    fun handleInactiveUserException(
-        ex: InactiveUserException
-    ): ResponseEntity<ApiResponse<Nothing>> {
-        
-        val response = ApiResponse.failure<Nothing>(
-            message = ex.message ?: "비활성화된 사용자입니다."
+    fun handleInactiveUserException(ex: InactiveUserException): ResponseEntity<ApiResponse<Nothing>> {
+        val apiResponse = ApiResponse.failure<Nothing>(
+            message = ex.message ?: "비활성화된 사용자입니다.",
+            errors = emptyList()
         )
-        
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response)
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiResponse)
     }
 
     /**
      * 권한 부족 예외 처리
      */
     @ExceptionHandler(InsufficientPermissionException::class)
-    fun handleInsufficientPermissionException(
-        ex: InsufficientPermissionException
-    ): ResponseEntity<ApiResponse<Nothing>> {
-        
-        val response = ApiResponse.failure<Nothing>(
-            message = ex.message ?: "권한이 부족합니다."
+    fun handleInsufficientPermissionException(ex: InsufficientPermissionException): ResponseEntity<ApiResponse<Nothing>> {
+        val apiResponse = ApiResponse.failure<Nothing>(
+            message = ex.message ?: "권한이 부족합니다.",
+            errors = emptyList()
         )
-        
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response)
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiResponse)
     }
 
     /**
-     * 기타 모든 예외 처리
+     * 로그인 실패 예외 처리
+     */
+    @ExceptionHandler(LoginFailedException::class)
+    fun handleLoginFailedException(ex: LoginFailedException): ResponseEntity<ApiResponse<Nothing>> {
+        val apiResponse = ApiResponse.failure<Nothing>(
+            message = "로그인에 실패했습니다.",
+            errors = listOf(ValidationError("login", ex.message ?: "로그인 실패"))
+        )
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiResponse)
+    }
+
+    /**
+     * 비활성화된 사용자 로그인 시도 예외 처리
+     */
+    @ExceptionHandler(InactiveUserLoginException::class)
+    fun handleInactiveUserLoginException(ex: InactiveUserLoginException): ResponseEntity<ApiResponse<Nothing>> {
+        val apiResponse = ApiResponse.failure<Nothing>(
+            message = "로그인에 실패했습니다.",
+            errors = listOf(ValidationError("account", ex.message ?: "비활성화된 계정"))
+        )
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiResponse)
+    }
+
+    /**
+     * JWT 토큰 관련 예외 처리
+     */
+    @ExceptionHandler(InvalidTokenException::class, ExpiredTokenException::class)
+    fun handleTokenException(ex: RuntimeException): ResponseEntity<ApiResponse<Nothing>> {
+        val apiResponse = ApiResponse.failure<Nothing>(
+            message = "인증에 실패했습니다.",
+            errors = listOf(ValidationError("token", ex.message ?: "토큰 오류"))
+        )
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiResponse)
+    }
+
+    /**
+     * 일반 예외 처리
      */
     @ExceptionHandler(Exception::class)
-    fun handleGeneralException(
-        ex: Exception
-    ): ResponseEntity<ApiResponse<Nothing>> {
-        
-        // 로깅 (향후 로거 추가 시 활용)
+    fun handleGenericException(ex: Exception): ResponseEntity<ApiResponse<Nothing>> {
+        // 로그로 실제 오류 내용 출력
         ex.printStackTrace()
         
-        val response = ApiResponse.failure<Nothing>(
-            message = "서버 내부 오류가 발생했습니다."
+        val apiResponse = ApiResponse.failure<Nothing>(
+            message = "서버 내부 오류가 발생했습니다: ${ex.javaClass.simpleName} - ${ex.message}",
+            errors = listOf(ValidationError("server", ex.message ?: "Unknown error"))
         )
-        
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response)
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse)
     }
 } 

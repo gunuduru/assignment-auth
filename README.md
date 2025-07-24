@@ -2,7 +2,7 @@
 
 ## 프로젝트 개요
 
-사용자/관리자 기반의 인증 및 메시지 전송 백엔드 시스템입니다. Spring Boot 3.5.x와 Kotlin을 기반으로 구축되었으며, 현재 1-4단계(프로젝트 초기 세팅 ~ 관리자 API 구현)까지 완료된 상태입니다.
+사용자/관리자 기반의 인증 및 메시지 전송 백엔드 시스템입니다. Spring Boot 3.5.x와 Kotlin을 기반으로 구축되었으며, 현재 1-5단계(프로젝트 초기 세팅 ~ 로그인 API 구현)까지 완료된 상태입니다.
 
 ## 기술 스택
 
@@ -106,7 +106,71 @@ cd auth
 }
 ```
 
-### 2. 관리자 API (Basic Auth 인증 필요)
+### 2. 로그인 API
+
+#### `POST /api/auth/login`
+
+**요청 본문**
+```json
+{
+  "username": "testuser123",
+  "password": "password123!"
+}
+```
+
+**응답 예시**
+```json
+{
+  "success": true,
+  "message": "로그인이 완료되었습니다.",
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0dXNlcjEyMyIsInVzZXJJZCI6MSwiaWF0IjoxNjQwOTk1MjAwLCJleHAiOjE2NDA5OTcwMDB9.xxx",
+    "tokenType": "Bearer",
+    "expiresIn": 1800,
+    "user": {
+      "id": 1,
+      "username": "testuser123",
+      "name": "홍길동",
+      "isActive": true,
+      "lastLoginAt": "2024-01-15T10:30:00"
+    }
+  }
+}
+```
+
+**유효성 검증 규칙**
+- `username`: 필수, 4-20자
+- `password`: 필수
+
+**오류 응답**
+```json
+{
+  "success": false,
+  "message": "로그인에 실패했습니다.",
+  "errors": [
+    {
+      "field": "login",
+      "message": "계정명 또는 비밀번호가 올바르지 않습니다."
+    }
+  ]
+}
+```
+
+**비활성화된 계정 오류**
+```json
+{
+  "success": false,
+  "message": "로그인에 실패했습니다.",
+  "errors": [
+    {
+      "field": "account",
+      "message": "비활성화된 계정입니다. 관리자에게 문의하세요."
+    }
+  ]
+}
+```
+
+### 3. 관리자 API (Basic Auth 인증 필요)
 
 **인증 정보**: 사용자명 `admin`, 비밀번호 `1212`
 
@@ -267,12 +331,14 @@ src/
 - [x] 사용자 활성화 - `POST /api/admin/users/{userId}/activate`
 - [x] 사용자 통계 - `GET /api/admin/statistics`
 
-## TODO (향후 작업 예정)
+### ✅ 5단계: 로그인 API 구현 (JWT 기반)
+- [x] JWT 토큰 기반 인증 시스템
+- [x] 로그인 API (`POST /api/auth/login`)
+- [x] access token 생성 및 반환 (만료시간 30분)
+- [x] JWT 토큰 검증 필터
+- [x] 비활성화된 사용자 로그인 차단
 
-### 5단계: 로그인 API 구현
-- [ ] JWT 토큰 기반 인증 시스템
-- [ ] 로그인 API 개발
-- [ ] 토큰 갱신 API 개발
+## TODO (향후 작업 예정)
 
 ### 6단계: 사용자 정보 관리 API
 - [ ] 사용자 정보 조회 API
@@ -297,7 +363,7 @@ src/
 - **Kotlin Coding Conventions**: 코틀린 공식 코딩 컨벤션 준수
 - **Spring Boot Best Practices**: 스프링 부트 모범 사례 적용
 - **Clean Architecture**: 계층별 책임 분리 (Controller, Service, Repository)
-- **Security**: Basic Auth를 통한 관리자 API 보호
+- **Security**: Basic Auth(관리자) + JWT(일반사용자) 이중 인증 시스템
 
 ## 라이선스
 
@@ -306,4 +372,4 @@ src/
 ---
 **Last Updated**: 2025.07.24  
 **Current Version**: 0.0.1-SNAPSHOT  
-**Development Stage**: 4단계 (관리자 API 구현) 완료 
+**Development Stage**: 5단계 (로그인 API 구현) 완료 

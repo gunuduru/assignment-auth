@@ -1,5 +1,6 @@
 package com.assignment.auth.dto
 
+import com.fasterxml.jackson.annotation.JsonAlias
 import jakarta.validation.constraints.*
 
 /**
@@ -12,6 +13,7 @@ data class UserRegisterRequest(
         regexp = "^[a-zA-Z0-9]+$",
         message = "계정명은 영문과 숫자만 사용 가능합니다"
     )
+    @JsonAlias("account") // account 필드명도 허용
     val username: String,
 
     @field:NotBlank(message = "비밀번호는 필수입니다")

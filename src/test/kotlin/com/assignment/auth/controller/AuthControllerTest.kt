@@ -1,7 +1,6 @@
 package com.assignment.auth.controller
 
 import com.assignment.auth.dto.UserRegisterRequest
-import com.assignment.auth.entity.Role
 import com.assignment.auth.repository.UserRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
@@ -69,7 +68,6 @@ class AuthControllerTest {
         // 데이터베이스 확인
         val savedUser = userRepository.findByUsername("testuser123")
         assert(savedUser.isPresent)
-        assert(savedUser.get().role == Role.USER)
         assert(savedUser.get().isActive)
     }
 

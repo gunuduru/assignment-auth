@@ -2,7 +2,6 @@ package com.assignment.auth.service
 
 import com.assignment.auth.dto.UserRegisterRequest
 import com.assignment.auth.dto.UserRegisterResponse
-import com.assignment.auth.entity.Role
 import com.assignment.auth.entity.User
 import com.assignment.auth.exception.SsnAlreadyExistsException
 import com.assignment.auth.exception.UsernameAlreadyExistsException
@@ -42,8 +41,7 @@ class UserService(
             name = request.name,
             ssn = request.ssn,
             phoneNumber = request.phoneNumber,
-            address = request.address,
-            role = Role.USER // 기본적으로 일반 사용자로 등록
+            address = request.address
         )
         
         // 4. 데이터베이스 저장
@@ -53,34 +51,7 @@ class UserService(
         return UserRegisterResponse.from(savedUser)
     }
 
-    /**
-     * 관리자 회원가입 처리 (향후 구현)
-     */
-    @Transactional
-    fun registerAdmin(request: UserRegisterRequest): UserRegisterResponse {
-        // 1. 중복 체크
-        validateDuplicateUser(request.username, request.ssn)
-        
-        // 2. 비밀번호 암호화
-        val encodedPassword = passwordEncoder.encode(request.password)
-        
-        // 3. Admin User 엔티티 생성
-        val admin = User(
-            username = request.username,
-            password = encodedPassword,
-            name = request.name,
-            ssn = request.ssn,
-            phoneNumber = request.phoneNumber,
-            address = request.address,
-            role = Role.ADMIN // 관리자로 등록
-        )
-        
-        // 4. 데이터베이스 저장
-        val savedAdmin = userRepository.save(admin)
-        
-        // 5. 응답 DTO 반환
-        return UserRegisterResponse.from(savedAdmin)
-    }
+
 
     /**
      * 계정명으로 사용자 조회
@@ -140,10 +111,5 @@ class UserService(
         return userRepository.countByIsActive(true)
     }
 
-    /**
-     * 역할별 사용자 수 조회
-     */
-    fun getUserCountByRole(role: Role): Long {
-        return userRepository.countByRole(role)
-    }
+
 } 

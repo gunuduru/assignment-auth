@@ -9,7 +9,6 @@ import java.time.LocalDateTime
 
 /**
  * 사용자 정보를 담는 엔티티
- * 일반 사용자와 관리자를 Role로 구분
  */
 @Entity
 @Table(
@@ -65,10 +64,6 @@ data class User(
     @field:Size(min = 10, max = 100, message = "주소는 10자 이상 100자 이하여야 합니다")
     val address: String,
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    val role: Role = Role.USER,
-
     @Column(name = "is_active", nullable = false)
     val isActive: Boolean = true,
 
@@ -81,17 +76,12 @@ data class User(
     var updatedAt: LocalDateTime = LocalDateTime.now()
 ) {
     /**
-     * 관리자 여부 확인
-     */
-    fun isAdmin(): Boolean = role == Role.ADMIN
-
-    /**
      * 활성 사용자 여부 확인
      */
     fun isActiveUser(): Boolean = isActive
 
     override fun toString(): String {
-        return "User(id=$id, username='$username', name='$name', role=$role, isActive=$isActive)"
+        return "User(id=$id, username='$username', name='$name', isActive=$isActive)"
     }
 
     override fun equals(other: Any?): Boolean {

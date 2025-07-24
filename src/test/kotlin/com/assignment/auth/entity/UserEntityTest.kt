@@ -32,8 +32,7 @@ class UserEntityTest {
             name = "홍길동",
             ssn = "123456-1234567",
             phoneNumber = "01012345678",
-            address = "서울특별시 강남구 테헤란로 123번길 45",
-            role = Role.USER
+            address = "서울특별시 강남구 테헤란로 123번길 45"
         )
 
         // When
@@ -43,29 +42,10 @@ class UserEntityTest {
         assertTrue(violations.isEmpty(), "유효한 사용자 정보에는 검증 오류가 없어야 합니다")
         assertEquals("testuser123", user.username)
         assertEquals("홍길동", user.name)
-        assertEquals(Role.USER, user.role)
-        assertFalse(user.isAdmin())
         assertTrue(user.isActiveUser())
     }
 
-    @Test
-    fun `관리자 사용자 생성 및 권한 확인 테스트`() {
-        // Given
-        val admin = User(
-            username = "admin123",
-            password = "adminpass123!",
-            name = "관리자",
-            ssn = "999999-9999999",
-            phoneNumber = "01099999999",
-            address = "서울특별시 중구 세종대로 110",
-            role = Role.ADMIN
-        )
 
-        // When & Then
-        assertEquals(Role.ADMIN, admin.role)
-        assertTrue(admin.isAdmin())
-        assertTrue(admin.isActiveUser())
-    }
 
     @Test
     fun `잘못된 계정명으로 User 생성 시 유효성 검증 실패`() {

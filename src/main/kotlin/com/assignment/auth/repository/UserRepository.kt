@@ -1,7 +1,8 @@
 package com.assignment.auth.repository
 
-import com.assignment.auth.entity.Role
 import com.assignment.auth.entity.User
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -42,19 +43,19 @@ interface UserRepository : JpaRepository<User, Long> {
     fun existsByUsernameOrSsn(@Param("username") username: String, @Param("ssn") ssn: String): Boolean
 
     /**
-     * 역할별 사용자 조회
-     */
-    fun findByRole(role: Role): List<User>
-
-    /**
      * 활성 상태별 사용자 조회
      */
     fun findByIsActive(isActive: Boolean): List<User>
 
     /**
-     * 역할과 활성 상태로 사용자 조회
+     * 페이지네이션을 위한 전체 사용자 조회
      */
-    fun findByRoleAndIsActive(role: Role, isActive: Boolean): List<User>
+    fun findAllBy(pageable: Pageable): Page<User>
+
+    /**
+     * 활성 상태별 페이지네이션 조회
+     */
+    fun findByIsActive(isActive: Boolean, pageable: Pageable): Page<User>
 
     /**
      * 이름으로 사용자 검색 (부분 일치)
@@ -62,15 +63,9 @@ interface UserRepository : JpaRepository<User, Long> {
     fun findByNameContainingIgnoreCase(name: String): List<User>
 
     /**
-     * 활성 관리자 조회
+     * 활성 사용자 조회
      */
-    @Query("SELECT u FROM User u WHERE u.role = 'ADMIN' AND u.isActive = true")
-    fun findActiveAdmins(): List<User>
-
-    /**
-     * 활성 일반 사용자 조회
-     */
-    @Query("SELECT u FROM User u WHERE u.role = 'USER' AND u.isActive = true")
+    @Query("SELECT u FROM User u WHERE u.isActive = true")
     fun findActiveUsers(): List<User>
 
     /**
@@ -78,11 +73,6 @@ interface UserRepository : JpaRepository<User, Long> {
      */
     @Query("SELECT COUNT(u) FROM User u")
     fun countAllUsers(): Long
-
-    /**
-     * 역할별 사용자 수 조회
-     */
-    fun countByRole(role: Role): Long
 
     /**
      * 활성 사용자 수 조회

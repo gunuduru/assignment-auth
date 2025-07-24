@@ -4,6 +4,7 @@ import com.assignment.auth.dto.SmsResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
@@ -34,7 +35,7 @@ class SmsClient {
      * @param message 발송할 메시지
      * @return HTTP 상태 코드
      */
-    fun sendMessage(phone: String, message: String): HttpStatus {
+    fun sendMessage(phone: String, message: String): HttpStatusCode {
         return try {
             val formData = LinkedMultiValueMap<String, String>()
             formData.add("message", message)
@@ -52,7 +53,7 @@ class SmsClient {
             statusCode
             
         } catch (ex: WebClientResponseException) {
-            val statusCode = HttpStatus.valueOf(ex.statusCode.value())
+            val statusCode = ex.statusCode
             logger.warn("SMS 메시지 발송 실패: phone=$phone, status=$statusCode, error=${ex.message}")
             statusCode
             

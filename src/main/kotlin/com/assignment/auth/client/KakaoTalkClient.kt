@@ -4,6 +4,7 @@ import com.assignment.auth.dto.KakaoTalkMessageRequest
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -32,7 +33,7 @@ class KakaoTalkClient {
      * @param message 발송할 메시지
      * @return HTTP 상태 코드
      */
-    fun sendMessage(phone: String, message: String): HttpStatus {
+    fun sendMessage(phone: String, message: String): HttpStatusCode {
         return try {
             val request = KakaoTalkMessageRequest(phone, message)
             
@@ -49,7 +50,7 @@ class KakaoTalkClient {
             statusCode
             
         } catch (ex: WebClientResponseException) {
-            val statusCode = HttpStatus.valueOf(ex.statusCode.value())
+            val statusCode = ex.statusCode
             logger.warn("카카오톡 메시지 발송 실패: phone=$phone, status=$statusCode, error=${ex.message}")
             statusCode
             

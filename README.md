@@ -15,8 +15,7 @@
 - **Spring Validation**: 입력값 유효성 검증
 
 ### Database
-- **PostgreSQL**: 운영 및 로컬 개발 환경
-- **H2 Database**: 테스트 환경
+- **H2 Database**: Persistent 모드로 개발 및 운영 환경
 
 ### Build Tool
 - **Gradle**: Kotlin DSL
@@ -25,20 +24,8 @@
 
 ### 1. 사전 요구사항
 - Java 21
-- Docker & Docker Compose (PostgreSQL 실행용)
 
-### 2. PostgreSQL 설정 (Docker)
-```bash
-# PostgreSQL 컨테이너 실행
-docker run --name auth-postgres \
-  -e POSTGRES_DB=auth \
-  -e POSTGRES_USER=auth_user \
-  -e POSTGRES_PASSWORD=auth_password \
-  -p 5432:5432 \
-  -d postgres:15
-```
-
-### 3. 애플리케이션 실행
+### 2. 애플리케이션 실행
 ```bash
 # 프로젝트 클론 및 이동
 git clone <repository-url>
@@ -46,6 +33,12 @@ cd auth
 
 # Gradle 빌드 및 실행
 ./gradlew bootRun
+
+# H2 Console 접속 (개발용)
+# URL: http://localhost:8080/h2-console
+# JDBC URL: jdbc:h2:file:./data/authdb
+# Username: sa
+# Password: (빈 값)
 ```
 
 ### 4. 접속 확인
@@ -406,9 +399,7 @@ src/
 │   │               ├── dto/             # 데이터 전송 객체
 │   │               └── exception/       # 예외 처리
 │   └── resources/
-│       ├── application.properties       # 애플리케이션 설정
-│       ├── application-dev.properties   # 개발 환경 설정 (H2)
-│       └── application-prod.properties  # 운영 환경 설정 (PostgreSQL)
+│       └── application.properties       # 애플리케이션 설정 (H2 Persistent)
 └── test/
     └── kotlin/
         └── com/
@@ -429,7 +420,7 @@ src/
 - [x] User 엔티티 설계 (주민번호 6자리-7자리 형태)
 - [x] UserRepository 인터페이스 (중복체크 메서드 포함)
 - [x] JPA Auditing 설정
-- [x] 다중 환경 데이터베이스 설정 (H2/PostgreSQL)
+- [x] H2 Persistent 데이터베이스 설정 (메모리 최적화)
 
 ### ✅ 3단계: 회원가입 API 구현 (비밀번호 암호화 포함)
 - [x] 사용자 회원가입 API (`POST /api/auth/register`)

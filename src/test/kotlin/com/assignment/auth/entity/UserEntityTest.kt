@@ -30,7 +30,7 @@ class UserEntityTest {
             username = "testuser123",
             password = "password123!",
             name = "홍길동",
-            ssn = "12345678901",
+            ssn = "123456-1234567",
             phoneNumber = "01012345678",
             address = "서울특별시 강남구 테헤란로 123번길 45",
             role = Role.USER
@@ -55,7 +55,7 @@ class UserEntityTest {
             username = "admin123",
             password = "adminpass123!",
             name = "관리자",
-            ssn = "99999999999",
+            ssn = "999999-9999999",
             phoneNumber = "01099999999",
             address = "서울특별시 중구 세종대로 110",
             role = Role.ADMIN
@@ -89,12 +89,12 @@ class UserEntityTest {
 
     @Test
     fun `잘못된 주민등록번호로 User 생성 시 유효성 검증 실패`() {
-        // Given - 주민등록번호가 11자리가 아님
+        // Given - 주민등록번호가 올바른 형태가 아님
         val userWithInvalidSsn = User(
             username = "testuser123",
             password = "password123!",
             name = "홍길동",
-            ssn = "123456789", // 11자리가 아님
+            ssn = "123456789", // 올바른 형태가 아님
             phoneNumber = "01012345678",
             address = "서울특별시 강남구 테헤란로 123번길 45"
         )
@@ -109,13 +109,13 @@ class UserEntityTest {
 
     @Test
     fun `잘못된 핸드폰번호로 User 생성 시 유효성 검증 실패`() {
-        // Given - 핸드폰번호가 11자리가 아님
+        // Given - 핸드폰번호가 올바른 형태가 아님
         val userWithInvalidPhone = User(
             username = "testuser123",
             password = "password123!",
             name = "홍길동",
             ssn = "12345678901",
-            phoneNumber = "010123456", // 11자리가 아님
+            phoneNumber = "010123456", // 올바른 형태가 아님
             address = "서울특별시 강남구 테헤란로 123번길 45"
         )
 
@@ -155,7 +155,7 @@ class UserEntityTest {
             username = "testuser123",
             password = "password123!",
             name = "홍길동",
-            ssn = "12345678901",
+            ssn = "123456-1234567",
             phoneNumber = "01012345678",
             address = "서울특별시 강남구 테헤란로 123번길 45"
         )
@@ -165,7 +165,7 @@ class UserEntityTest {
             username = "testuser123",
             password = "differentpass",
             name = "다른이름",
-            ssn = "12345678901",
+            ssn = "123456-1234567",
             phoneNumber = "01099999999",
             address = "다른주소"
         )
@@ -175,7 +175,7 @@ class UserEntityTest {
             username = "otheruser",
             password = "password123!",
             name = "김영희",
-            ssn = "98765432109",
+            ssn = "987654-3210987",
             phoneNumber = "01087654321",
             address = "부산광역시 해운대구"
         )

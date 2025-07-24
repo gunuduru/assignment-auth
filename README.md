@@ -64,7 +64,7 @@ cd auth
   "username": "testuser123",
   "password": "securePassword123!",
   "name": "홍길동",
-  "ssn": "12345678901",
+  "ssn": "123456-1234567",
   "phoneNumber": "01012345678",
   "address": "서울특별시 강남구 테헤란로 123"
 }
@@ -88,7 +88,7 @@ cd auth
 - `username`: 필수, 4-20자, 영문+숫자 조합
 - `password`: 필수, 8자 이상, 영문+숫자+특수문자 포함
 - `name`: 필수, 2-10자
-- `ssn`: 필수, 11자리 숫자 (시스템 내 유일)
+- `ssn`: 필수, 6자리-7자리 형태 (예: 123456-1234567, 시스템 내 유일)
 - `phoneNumber`: 필수, 11자리 숫자
 - `address`: 필수, 10-100자
 
